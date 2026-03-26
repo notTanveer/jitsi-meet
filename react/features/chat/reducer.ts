@@ -15,6 +15,7 @@ import {
     REMOVE_LOBBY_CHAT_PARTICIPANT,
     SET_CHAT_IS_RESIZING,
     SET_CHAT_WIDTH,
+    SET_EDIT_MESSAGE,
     SET_FOCUSED_TAB,
     SET_LOBBY_CHAT_ACTIVE_STATE,
     SET_LOBBY_CHAT_RECIPIENT,
@@ -44,6 +45,7 @@ const DEFAULT_STATE = {
 };
 
 export interface IChatState {
+    editingMessage?: IMessage;
     focusedTab?: ChatTabs;
     groupChatWithPermissions: boolean;
     isLobbyChatActive: boolean;
@@ -140,6 +142,12 @@ ReducerRegistry.register<IChatState>('features/chat', (state = DEFAULT_STATE, ac
         };
     }
 
+    case SET_EDIT_MESSAGE:
+        return {
+            ...state,
+            editingMessage: action.message
+        };
+
     case CLEAR_CHAT_STATE:
         return {
             ...DEFAULT_STATE,
@@ -147,13 +155,35 @@ ReducerRegistry.register<IChatState>('features/chat', (state = DEFAULT_STATE, ac
         };
 
     case EDIT_MESSAGE: {
+        if (!action.message?.messageId) {
+            return state;
+        }
+
         let found = false;
         const newMessage = action.message;
         const messages = state.messages.map(m => {
             if (m.messageId === newMessage.messageId) {
                 found = true;
 
-                return newMessage;
+                const hasMessageChanged = m.message !== newMessage.message;
+                const editHistory = hasMessageChanged
+                    ? [
+                        ...(m.editHistory ?? []),
+                        {
+                            editedAt: newMessage.timestamp ?? m.timestamp,
+                            editedBy: newMessage.participantId ?? m.participantId,
+                            previousContent: m.message
+                        }
+                    ]
+                    : m.editHistory;
+                const isEdited = hasMessageChanged || m.isEdited || Boolean(newMessage.isEdited);
+
+                return {
+                    ...m,
+                    ...newMessage,
+                    editHistory,
+                    isEdited
+                };
             }
 
             return m;
@@ -166,6 +196,7 @@ ReducerRegistry.register<IChatState>('features/chat', (state = DEFAULT_STATE, ac
 
         return {
             ...state,
+            editingMessage: state.editingMessage?.messageId === newMessage.messageId ? undefined : state.editingMessage,
             messages
         };
     }
@@ -186,6 +217,7 @@ ReducerRegistry.register<IChatState>('features/chat', (state = DEFAULT_STATE, ac
     case CLOSE_CHAT:
         return {
             ...state,
+            editingMessage: undefined,
             isOpen: false,
             lastReadMessage: state.messages[
                 navigator.product === 'ReactNative' ? 0 : state.messages.length - 1],

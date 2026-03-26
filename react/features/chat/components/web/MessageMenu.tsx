@@ -6,15 +6,18 @@ import { makeStyles } from 'tss-react/mui';
 
 import { IReduxState } from '../../../app/types';
 import { IconDotsHorizontal } from '../../../base/icons/svg';
-import { getParticipantById } from '../../../base/participants/functions';
+import { getLocalParticipant, getParticipantById } from '../../../base/participants/functions';
 import Popover from '../../../base/popover/components/Popover.web';
 import Button from '../../../base/ui/components/web/Button';
 import { BUTTON_TYPES } from '../../../base/ui/constants.any';
 import { copyText } from '../../../base/util/copyText.web';
+import { setEditMessage } from '../../actions.any';
 import { handleLobbyChatInitialized, openChat } from '../../actions.web';
 import logger from '../../logger';
+import { IMessage } from '../../types';
 
 export interface IProps {
+    chatMessage?: IMessage;
     className?: string;
     displayName?: string;
     enablePrivateChat: boolean;
@@ -62,7 +65,16 @@ const useStyles = makeStyles()(theme => {
     };
 });
 
-const MessageMenu = ({ message, participantId, isFromVisitor, isLobbyMessage, enablePrivateChat, displayName, isFileMessage }: IProps) => {
+const MessageMenu = ({
+    chatMessage,
+    message,
+    participantId,
+    isFromVisitor,
+    isLobbyMessage,
+    enablePrivateChat,
+    displayName,
+    isFileMessage
+}: IProps) => {
     const dispatch = useDispatch();
     const { classes, cx } = useStyles();
     const { t } = useTranslation();
@@ -73,6 +85,8 @@ const MessageMenu = ({ message, participantId, isFromVisitor, isLobbyMessage, en
     const buttonRef = useRef<HTMLDivElement>(null);
 
     const participant = useSelector((state: IReduxState) => getParticipantById(state, participantId));
+    const localParticipantId = useSelector((state: IReduxState) => getLocalParticipant(state)?.id);
+    const canEditMessage = Boolean(localParticipantId && localParticipantId === participantId && !isFileMessage);
 
     // If no menu items will be shown, don't render the menu button.
     if (!enablePrivateChat && isFileMessage) {
@@ -107,7 +121,7 @@ const MessageMenu = ({ message, participantId, isFromVisitor, isLobbyMessage, en
             }
         }
         handleClose();
-    }, [ dispatch, isLobbyMessage, participant, participantId, displayName ]);
+    }, [ dispatch, displayName, handleClose, isFromVisitor, isLobbyMessage, participant, participantId ]);
 
     const handleCopyClick = useCallback(() => {
         copyText(message)
@@ -135,6 +149,15 @@ const MessageMenu = ({ message, participantId, isFromVisitor, isLobbyMessage, en
         handleClose();
     }, [ message ]);
 
+    const handleEditClick = useCallback(() => {
+        if (!canEditMessage || !chatMessage) {
+            return;
+        }
+
+        dispatch(setEditMessage(chatMessage));
+        handleClose();
+    }, [ canEditMessage, chatMessage, dispatch, handleClose ]);
+
     const popoverContent = (
         <div className = { classes.menuPanel }>
             {enablePrivateChat && (
@@ -149,6 +172,13 @@ const MessageMenu = ({ message, participantId, isFromVisitor, isLobbyMessage, en
                     className = { classes.menuItem }
                     onClick = { handleCopyClick }>
                     {t('Copy')}
+                </div>
+            )}
+            {canEditMessage && (
+                <div
+                    className = { classes.menuItem }
+                    onClick = { handleEditClick }>
+                    {t('Edit')}
                 </div>
             )}
         </div>

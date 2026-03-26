@@ -15,12 +15,14 @@ import {
     REMOVE_LOBBY_CHAT_PARTICIPANT,
     SEND_MESSAGE,
     SEND_REACTION,
+    SET_EDIT_MESSAGE,
     SET_FOCUSED_TAB,
     SET_LOBBY_CHAT_ACTIVE_STATE,
     SET_LOBBY_CHAT_RECIPIENT,
     SET_PRIVATE_MESSAGE_RECIPIENT
 } from './actionTypes';
 import { ChatTabs } from './constants';
+import { IMessage } from './types';
 
 /**
  * Adds a chat message to the collection of messages.
@@ -78,16 +80,32 @@ export function addMessageReaction(reactionDetails: Object) {
 /**
  * Edits an existing chat message.
  *
- * @param {Object} message - The chat message to edit/override. The messages will be matched from the state
+ * @param {IMessage} message - The chat message to edit/override. The messages will be matched from the state
  * comparing the messageId.
  * @returns {{
  *     type: EDIT_MESSAGE,
- *     message: Object
+ *     message: IMessage
  * }}
  */
-export function editMessage(message: Object) {
+export function editMessage(message: IMessage) {
     return {
         type: EDIT_MESSAGE,
+        message
+    };
+}
+
+/**
+ * Sets or clears the message currently being edited.
+ *
+ * @param {IMessage} message - The message currently being edited.
+ * @returns {{
+ *     type: SET_EDIT_MESSAGE,
+ *     message: IMessage | undefined
+ * }}
+ */
+export function setEditMessage(message?: IMessage) {
+    return {
+        type: SET_EDIT_MESSAGE,
         message
     };
 }

@@ -48,10 +48,21 @@ export const CLOSE_CHAT = 'CLOSE_CHAT';
  *
  * {
  *     type: EDIT_MESSAGE,
- *     message: Object
+ *     message: IMessage
  * }
  */
 export const EDIT_MESSAGE = 'EDIT_MESSAGE';
+
+/**
+ * The type of the action which signals to set/clear the edited message in the
+ * chat input.
+ *
+ * {
+ *     type: SET_EDIT_MESSAGE,
+ *     message: IMessage | undefined
+ * }
+ */
+export const SET_EDIT_MESSAGE = 'SET_EDIT_MESSAGE';
 
 /**
  * The type of the action which signals to display the chat panel.

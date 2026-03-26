@@ -37,6 +37,10 @@ const useStyles = makeStyles()((theme: Theme) => {
             flexGrow: 1,
             overflow: 'hidden'
         },
+        chatMessageFooterRight: {
+            display: 'flex',
+            alignItems: 'center'
+        },
         chatMessageWrapper: {
             maxWidth: '100%'
         },
@@ -202,6 +206,14 @@ const useStyles = makeStyles()((theme: Theme) => {
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap'
+        },
+        editedIndicator: {
+            ...theme.typography.labelRegular,
+            color: theme.palette.chatTimestamp,
+            marginLeft: theme.spacing(1),
+            fontStyle: 'italic',
+            whiteSpace: 'nowrap',
+            flexShrink: 0
         }
     };
 });
@@ -277,6 +289,27 @@ const ChatMessage = ({
                 <p>
                     {getFormattedTimestamp(message)}
                 </p>
+            </div>
+        );
+    }
+
+    /**
+     * Renders the edited indicator label.
+     *
+     * @returns {React$Element<*>}
+     */
+    function _renderEditedIndicator() {
+        if (!message.isEdited) {
+            return null;
+        }
+
+        const originalMessage = message.editHistory?.[0]?.previousContent;
+
+        return (
+            <div
+                className = { cx('edited-indicator', classes.editedIndicator) }
+                title = { originalMessage }>
+                {t('chat.edited')}
             </div>
         );
     }
@@ -358,6 +391,7 @@ const ChatMessage = ({
                 {!shouldDisplayMenuOnRight && (
                     <div className = { classes.optionsButtonContainer }>
                         {isHovered && <MessageMenu
+                            chatMessage = { message }
                             displayName = { message.displayName }
                             enablePrivateChat = { Boolean(enablePrivateChat) }
                             isFileMessage = { isFileMessage(message) }
@@ -408,7 +442,10 @@ const ChatMessage = ({
                                             </>
                                         )}
                                     </div>
-                                    {_renderTimestamp()}
+                                    <div className = { classes.chatMessageFooterRight }>
+                                        {_renderEditedIndicator()}
+                                        {_renderTimestamp()}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -427,6 +464,7 @@ const ChatMessage = ({
                         <div>
                             <div className = { classes.optionsButtonContainer }>
                                 {isHovered && <MessageMenu
+                                    chatMessage = { message }
                                     displayName = { message.displayName }
                                     enablePrivateChat = { Boolean(enablePrivateChat) }
                                     isFileMessage = { isFileMessage(message) }

@@ -110,6 +110,7 @@
     },
     "chat": {
         "disabled": "Sending chat messages is disabled.",
+        "edited": "(edited)",
         "enter": "Enter room",
         "error": "Error: your message was not sent. Reason: {{error}}",
         "everyone": "Everyone",
@@ -143,6 +144,7 @@
         },
         "noMessagesMessage": "There are no messages in the meeting yet. Start a conversation here!",
         "privateNotice": "Private message to {{recipient}}",
+        "saveButton": "Save",
         "sendButton": "Send",
         "smileysPanel": "Emoji panel",
         "systemDisplayName": "System",

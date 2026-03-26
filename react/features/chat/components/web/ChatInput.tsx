@@ -10,8 +10,10 @@ import { translate } from '../../../base/i18n/functions';
 import { IconFaceSmile, IconSend } from '../../../base/icons/svg';
 import Button from '../../../base/ui/components/web/Button';
 import Input from '../../../base/ui/components/web/Input';
+import { editMessage, setEditMessage } from '../../actions.any';
 import { CHAT_SIZE } from '../../constants';
 import { areSmileysDisabled, isSendGroupChatDisabled } from '../../functions';
+import { IMessage } from '../../types';
 
 import SmileysPanel from './SmileysPanel';
 
@@ -57,6 +59,11 @@ interface IProps extends WithTranslation {
 
 
     _chatWidth: number;
+
+    /**
+     * Message currently in edit mode.
+     */
+    _editingMessage?: IMessage;
 
     /**
      * Whether sending group chat messages is disabled.
@@ -155,6 +162,11 @@ class ChatInput extends Component<IProps, IState> {
         if (prevProps._privateMessageRecipientId !== this.props._privateMessageRecipientId) {
             this._textArea?.current?.focus();
         }
+
+        if (prevProps._editingMessage?.messageId !== this.props._editingMessage?.messageId) {
+            this.setState({ message: this.props._editingMessage?.message ?? '' });
+            this._textArea?.current?.focus();
+        }
     }
 
     /**
@@ -201,7 +213,7 @@ class ChatInput extends Component<IProps, IState> {
                         textarea = { true }
                         value = { this.state.message } />
                     <Button
-                        accessibilityLabel = { this.props.t('chat.sendButton') }
+                        accessibilityLabel = { this.props.t(this.props._editingMessage ? 'chat.saveButton' : 'chat.sendButton') }
                         disabled = { !this.state.message.trim() }
                         icon = { IconSend }
                         onClick = { this._onSubmitMessage }
@@ -228,8 +240,10 @@ class ChatInput extends Component<IProps, IState> {
      */
     _onSubmitMessage() {
         const {
+            _editingMessage,
             _isSendGroupChatDisabled,
             _privateMessageRecipientId,
+            dispatch,
             onSend
         } = this.props;
 
@@ -240,7 +254,16 @@ class ChatInput extends Component<IProps, IState> {
         const trimmed = this.state.message.trim();
 
         if (trimmed) {
-            onSend(trimmed);
+            if (_editingMessage) {
+                dispatch(editMessage({
+                    ..._editingMessage,
+                    message: trimmed,
+                    timestamp: Date.now()
+                }));
+                dispatch(setEditMessage());
+            } else {
+                onSend(trimmed);
+            }
 
             this.setState({ message: '' });
 
@@ -342,11 +365,12 @@ class ChatInput extends Component<IProps, IState> {
  * }}
  */
 const mapStateToProps = (state: IReduxState) => {
-    const { privateMessageRecipient, width } = state['features/chat'];
+    const { editingMessage, privateMessageRecipient, width } = state['features/chat'];
     const isGroupChatDisabled = isSendGroupChatDisabled(state);
 
     return {
         _areSmileysDisabled: areSmileysDisabled(state),
+        _editingMessage: editingMessage,
         _privateMessageRecipientId: privateMessageRecipient?.id,
         _isSendGroupChatDisabled: isGroupChatDisabled,
         _chatWidth: width.current ?? CHAT_SIZE,
