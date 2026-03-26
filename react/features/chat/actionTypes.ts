@@ -172,3 +172,90 @@ export const SET_CHAT_IS_RESIZING = 'SET_CHAT_IS_RESIZING';
   * }
   */
  export const NOTIFY_PRIVATE_RECIPIENTS_CHANGED = 'NOTIFY_PRIVATE_RECIPIENTS_CHANGED';
+
+/**
+ * The type of the action which signals to delete a chat message.
+ *
+ * {
+ *     type: DELETE_MESSAGE,
+ *     messageId: string,
+ *     participantId: string,
+ *     timestamp: number
+ * }
+ */
+export const DELETE_MESSAGE = 'DELETE_MESSAGE';
+
+/**
+ * The type of the action which signals to report a chat message.
+ *
+ * {
+ *     type: REPORT_MESSAGE,
+ *     messageId: string,
+ *     reportedBy: string,
+ *     reason: string,
+ *     timestamp: number
+ * }
+ */
+export const REPORT_MESSAGE = 'REPORT_MESSAGE';
+
+/**
+ * The type of the action which signals to report a participant.
+ *
+ * {
+ *     type: REPORT_PARTICIPANT,
+ *     participantId: string,
+ *     reportedBy: string,
+ *     reason: string,
+ *     timestamp: number
+ * }
+ */
+export const REPORT_PARTICIPANT = 'REPORT_PARTICIPANT';
+
+/**
+ * The type of the action which signals to mute a user in chat.
+ *
+ * {
+ *     type: MUTE_USER_CHAT,
+ *     participantId: string,
+ *     mutedBy: string,
+ *     timestamp: number
+ * }
+ */
+export const MUTE_USER_CHAT = 'MUTE_USER_CHAT';
+
+/**
+ * The type of the action which signals to unmute a user in chat.
+ *
+ * {
+ *     type: UNMUTE_USER_CHAT,
+ *     participantId: string,
+ *     unmutedBy: string,
+ *     timestamp: number
+ * }
+ */
+export const UNMUTE_USER_CHAT = 'UNMUTE_USER_CHAT';
+
+/**
+ * The type of the action which signals to ban a user from chat.
+ *
+ * {
+ *     type: BAN_USER_CHAT,
+ *     participantId: string,
+ *     bannedBy: string,
+ *     reason: string,
+ *     timestamp: number
+ * }
+ */
+export const BAN_USER_CHAT = 'BAN_USER_CHAT';
+
+/**
+ * The type of the action which signals to shadow ban a user from chat.
+ *
+ * {
+ *     type: SHADOW_BAN_USER_CHAT,
+ *     participantId: string,
+ *     shadowBannedBy: string,
+ *     timestamp: number
+ * }
+ */
+export const SHADOW_BAN_USER_CHAT = 'SHADOW_BAN_USER_CHAT';

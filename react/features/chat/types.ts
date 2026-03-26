@@ -3,10 +3,19 @@ import { WithTranslation } from 'react-i18next';
 import { IStore } from '../app/types';
 import { IFileMetadata } from '../file-sharing/types';
 
+export interface IMessageEdit {
+    editedAt: number;
+    editedBy: string;
+    previousContent: string;
+}
+
 export interface IMessage {
     displayName: string;
+    editHistory?: IMessageEdit[];
     error?: Object;
     fileMetadata?: IFileMetadata;
+    isDeleted?: boolean;
+    isEdited?: boolean;
     isFromGuest?: boolean;
     isFromVisitor?: boolean;
     isReaction: boolean;
